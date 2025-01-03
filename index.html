@@ -195,7 +195,7 @@
      <section id="Problem-statement">
     <h2>Problem Statement</h2>
     <dl>
-        Urban mobility faces issues like traffic congestion, lack of parking, and slow emergency response. A smart system that manages traffic, parking, and emergencies can improve efficiency and reduce delays.
+        Urban mobility faces issues like traffic congestion, lack of parking, and slow emergency response. A smart system that manages traffic, parking, and emergencies can improve efficiency and reduce delays.
     </dl>
 </section>
 
@@ -758,7 +758,243 @@
     </ol>
     </section>
     </section>
-    
+
+             <nav>
+    <button class="button" onclick="toggleInfo('code-ideas')">Implementation </button>
+  </nav>
+     <section id="code-ideas" style="display: none;">
+        <button class="button" onclick="toggleInfo('Bus-ideas1')"> Business case 1 </button>
+  </nav>
+     <section id="Bus-ideas1" style="display: none;">
+        
+     </section>
+        <button class="button" onclick="toggleInfo('Bus-ideas2')"> Business case 2 </button>
+  </nav>
+     <section id="Bus-ideas2" style="display: none;">
+        <pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;unordered_map&gt;
+#include &lt;queue&gt;
+#include &lt;cmath&gt;
+#include &lt;algorithm&gt;
+#include &lt;regex&gt;
+
+// Hashing function for Rabin-Karp string search (case insensitive)
+unsigned long rabinKarpHash(const std::string &str, int start, int end, int prime = 101) {
+    unsigned long hashValue = 0;
+    for (int i = start; i &lt;= end; i++) {
+        hashValue = (hashValue * prime + std::tolower(str[i])) % 1000000000; // Use an integer constant
+    }
+    return hashValue;
+}
+
+// Rabin-Karp String Search (case insensitive)
+bool rabinKarpSearch(const std::string &text, const std::string &pattern) {
+    int n = text.length();
+    int m = pattern.length();
+    unsigned long patternHash = rabinKarpHash(pattern, 0, m - 1);
+    unsigned long textHash = rabinKarpHash(text, 0, m - 1);
+    int prime = 101;
+
+    for (int i = 0; i &lt;= n - m; i++) {
+        if (patternHash == textHash) {
+            if (text.substr(i, m) == pattern) {
+                return true;
+            }
+        }
+        if (i &lt; n - m) {
+            textHash = (textHash - std::tolower(text[i]) * std::pow(prime, m - 1)) * prime + std::tolower(text[i + m]);
+        }
+    }
+    return false;
+}
+
+// Data structure for Feedback
+struct Feedback {
+    std::string issue;
+    int count;
+    std::string severity;
+    std::string department;
+    Feedback(std::string i, int c, std::string s, std::string d) : issue(i), count(c), severity(s), department(d) {}
+};
+
+// Compare function for the priority queue (min-heap) - now handles severity and department
+struct CompareFeedback {
+    bool operator()(const Feedback &a, const Feedback &b) {  // Use const references
+        if (a.count == b.count) {
+            return a.severity &lt; b.severity; // High severity comes first
+        }
+        return a.count &lt; b.count;
+    }
+};
+
+// Function to convert string to lowercase for case-insensitive matching
+std::string toLowerCase(const std::string &str) {
+    std::string lowerStr = str;
+    std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+    return lowerStr;
+}
+
+// Function to categorize the feedback based on keywords
+std::string categorizeFeedback(const std::string &feedback) {
+    std::string lowerFeedback = toLowerCase(feedback);
+
+    // List of categories and corresponding keywords
+    if (lowerFeedback.find("traffic") != std::string::npos) {
+        return "Traffic Issue";
+    } else if (lowerFeedback.find("accident") != std::string::npos) {
+        return "Accident";
+    } else if (lowerFeedback.find("construction") != std::string::npos) {
+        return "Construction";
+    } else if (lowerFeedback.find("pollution") != std::string::npos) {
+        return "Environmental Concern";
+    } else if (lowerFeedback.find("noise") != std::string::npos) {
+        return "Noise Complaint";
+    } else if (lowerFeedback.find("water") != std::string::npos) {
+        return "Water Supply Issue";
+    } else if (lowerFeedback.find("power") != std::string::npos) {
+        return "Power Supply Issue";
+    } else {
+        return "General Inquiry";
+    }
+}
+
+// Function to determine department to act on
+std::string getDepartment(const std::string &issue) {
+    if (issue == "Traffic Issue") {
+        return "Traffic Control";
+    } else if (issue == "Accident") {
+        return "Emergency Services";
+    } else if (issue == "Construction") {
+        return "Public Works";
+    } else if (issue == "Environmental Concern") {
+        return "Environmental Protection";
+    } else if (issue == "Noise Complaint") {
+        return "Public Health";
+    } else if (issue == "Water Supply Issue") {
+        return "Water Supply Services";
+    } else if (issue == "Power Supply Issue") {
+        return "Electricity Provider";
+    } else {
+        return "General Inquiry Team";
+    }
+}
+
+// Function to act on feedback
+void actOnFeedback(const Feedback &f) {
+    std::cout << "\nActing on Feedback - " << f.issue << ":\n";
+
+    if (f.severity == "high") {
+        std::cout << " - This is a high priority issue! Immediate action required.\n";
+    } else if (f.severity == "medium") {
+        std::cout << " - Medium priority issue, should be addressed within the next 24 hours.\n";
+    } else {
+        std::cout << " - Low priority issue, action can be scheduled as needed.\n";
+    }
+
+    // Based on the department and severity, take actions
+    if (f.issue == "Traffic Issue") {
+        if (f.severity == "high") {
+            std::cout << "   - Notify traffic control for immediate road rerouting and set up detours.\n";
+        } else {
+            std::cout << "   - Inform traffic monitoring centers to prepare for potential congestion.\n";
+        }
+    } else if (f.issue == "Accident") {
+        std::cout << "   - Emergency services are notified. Dispatch ambulances and route traffic around the site.\n";
+    } else if (f.issue == "Construction") {
+        std::cout << "   - Public Works team notified for further investigation on road work schedule.\n";
+    } else if (f.issue == "Environmental Concern") {
+        std::cout << "   - Environmental Protection will inspect for pollution and report findings.\n";
+    } else if (f.issue == "Noise Complaint") {
+        std::cout << "   - Notify Public Health to assess noise pollution levels.\n";
+    } else if (f.issue == "Water Supply Issue") {
+        std::cout << "   - Water Supply Services to inspect and ensure a prompt response to shortages.\n";
+    } else if (f.issue == "Power Supply Issue") {
+        std::cout << "   - Notify Electricity Provider to check the outage or supply issue.\n";
+    } else {
+        std::cout << "   - The General Inquiry Team will respond to this feedback.\n";
+    }
+}
+
+// Function to display and process feedback priority queue
+void processFeedbackQueue(std::priority_queue<Feedback, std::vector<Feedback>, CompareFeedback>& issuePriorityQueue) {
+    std::cout << "\nProcessed and Prioritized Feedback:\n";
+    while (!issuePriorityQueue.empty()) {
+        Feedback f = issuePriorityQueue.top();
+        std::cout << "\nIssue: " << f.issue
+                  << " - Count: " << f.count
+                  << " - Severity: " << f.severity
+                  << " - Department: " << f.department << "\n";
+        actOnFeedback(f);
+        issuePriorityQueue.pop();
+    }
+}
+
+int main() {
+    // Initialize data structures
+    std::unordered_map<std::string, int> feedbackCount;
+    std::queue<std::string> feedbackQueue;
+    std::priority_queue<Feedback, std::vector<Feedback>, CompareFeedback> issuePriorityQueue;
+
+    // Interactive feedback collection
+    std::string feedback;
+    std::cout << "Enter feedback from citizens (type 'exit' to stop):\n";
+
+    while (true) {
+        std::cout << "Feedback: ";
+        std::getline(std::cin, feedback);
+
+        if (feedback == "exit") {
+            break;  // End the input loop
+        }
+
+        // Categorize the feedback
+        std::string category = categorizeFeedback(feedback);
+
+        // Ask for severity (optional: can be 'high', 'medium', 'low')
+        std::string severity;
+        std::cout << "Severity (high, medium, low): ";
+        std::getline(std::cin, severity);
+
+        // Determine department based on category
+        std::string department = getDepartment(category);
+
+        // Store feedback in the queue
+        feedbackQueue.push(feedback);
+
+        // Increment the count of feedback for the specific category
+        feedbackCount[category]++;
+
+        // Add the feedback to the priority queue
+        issuePriorityQueue.push(Feedback(category, feedbackCount[category], severity, department));
+
+        std::cout << "\nFeedback Recorded: " << category << " - Severity: " << severity << "\n\n";
+    }
+
+    // Process and display the prioritized feedback
+    processFeedbackQueue(issuePriorityQueue);
+
+    return 0;
+}
+</pre>
+     </section>
+        <button class="button" onclick="toggleInfo('Bus-ideas3')"> Business case 3 </button>
+  </nav>
+     <section id="Bus-ideas3" style="display: none;">
+        
+     </section>
+        <button class="button" onclick="toggleInfo('Bus-ideas4')"> Business case 4 </button>
+  </nav>
+     <section id="Bus-ideas4" style="display: none;">
+        
+     </section>
+        
+     </section>
+        
+
+            
 <footer>
     <p>&copy; 2024 VAYUJIVA | Designed by RIA JAVALAGI</p>
 </footer>
